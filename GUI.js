@@ -481,12 +481,12 @@ var XBMC_GUI = function() {
 							consolelog("typeof self.XBMC.ref.tvshows[" + tvshowid + "] = " + typeof self.XBMC.ref.tvshows[tvshowid]);
 							consolelog("typeof self.XBMC.ref.tvshows[" + tvshowid + "][" + season + "] = " + typeof self.XBMC.ref.tvshows[tvshowid][season]);
 
-							if (typeof self.XBMC.ref.tvshows[tvshowid][season] == "undefined") self.XBMC.ref.tvshows[tvshowid][season] = {};
-							self.XBMC.ref.tvshows[tvshowid][season] = {"index": rowCount, "item": itemCount + 1};
+							//if (typeof self.XBMC.ref.tvshows[tvshowid][season] == "undefined") self.XBMC.ref.tvshows[tvshowid][season] = {};
+							//self.XBMC.ref.tvshows[tvshowid][season] = {"index": rowCount, "item": itemCount + 1};
 
-							consolelog("typeof self.XBMC.ref.tvshows[" + tvshowid + "][" + season + "] = " + typeof self.XBMC.ref.tvshows[tvshowid][season]);
+							//consolelog("typeof self.XBMC.ref.tvshows[" + tvshowid + "][" + season + "] = " + typeof self.XBMC.ref.tvshows[tvshowid][season]);
 
-							consolelog("typeof self.XBMC.mediaList.tvshows[" + self.XBMC.ref.tvshows[tvshowid].index + "][\"seasons\"" + self.XBMC.ref.tvshows[tvshowid].item + "] = " + typeof self.XBMC.mediaList.tvshows[ self.XBMC.ref.tvshows[tvshowid].index ]["seasons" + self.XBMC.ref.tvshows[tvshowid].item]);
+							///consolelog("typeof self.XBMC.mediaList.tvshows[" + self.XBMC.ref.tvshows[tvshowid].index + "][\"seasons\"" + self.XBMC.ref.tvshows[tvshowid].item + "] = " + typeof self.XBMC.mediaList.tvshows[ self.XBMC.ref.tvshows[tvshowid].index ]["seasons" + self.XBMC.ref.tvshows[tvshowid].item]);
 							//if ( typeof self.XBMC.mediaList.tvshows[ self.XBMC.ref.tvshows[tvshowid].index ]["seasons" + self.XBMC.ref.tvshows[tvshowid].item] == "object" ) {
 								// add season info and tokens required to get the episode list...
 								fanart		= json.result.seasons[i].art.fanart;
@@ -516,7 +516,7 @@ var XBMC_GUI = function() {
 						var tvshowid = json.result.episodes[i].tvshowid;
 						var season = json.result.episodes[i].season;
 
-						consolelog("self.XBMC.mediaLibrary[\"tvshows\"][" + self.XBMC.ref["tvshows"][tvshowid].index + "][\"seasons\"" + self.XBMC.ref["tvshows"][tvshowid].item + "][" + self.XBMC.ref["tvshows"][tvshowid][season].index + "][\"episodes\"" + self.XBMC.ref["tvshows"][tvshowid][season].item + "]");
+						//consolelog("self.XBMC.mediaLibrary[\"tvshows\"][" + self.XBMC.ref["tvshows"][tvshowid].index + "][\"seasons\"" + self.XBMC.ref["tvshows"][tvshowid].item + "][" + self.XBMC.ref["tvshows"][tvshowid][season].index + "][\"episodes\"" + self.XBMC.ref["tvshows"][tvshowid][season].item + "]");
 						//if ( typeof self.XBMC.mediaLibrary["tvshows"][self.XBMC.ref["tvshows"][tvshowid].index]["seasons" + self.XBMC.ref["tvshows"][tvshowid].item][self.XBMC.ref["tvshows"][tvshowid][season].index]["episodes" + self.XBMC.ref["tvshows"][tvshowid][season].item] == "object") {
 							// add episode info...
 							file		= json.result.episodes[i].file;
@@ -543,8 +543,8 @@ var XBMC_GUI = function() {
 						// "artist", "artistid", "thumbnail", "fanart", "formed", "label"
 						artistid = json.result.artists[i].artistid;
 						consolelog("Queueing albums for artist(" + artistid + ") to be loaded ...");
-						if ( typeof self.XBMC.queuedIDs["albums"] != "object" ) self.XBMC.queuedIDs["albums"] = [];
-						self.XBMC.queuedIDs["albums"].push({"artistid": artistid});
+						//if ( typeof self.XBMC.queuedIDs["albums"] != "object" ) self.XBMC.queuedIDs["albums"] = [];
+						//self.XBMC.queuedIDs["albums"].push({"artistid": artistid});
 						//console.log(self.XBMC.queuedIDs["albums"]);
 
 						// set reference variables
@@ -575,9 +575,9 @@ var XBMC_GUI = function() {
 						var artistid = json.result.albums[i].artistid;
 						var albumid = json.result.albums[i].albumid;
 
-						consolelog("Queueing songs on albumid(" + albumid + ") for artistid(" + artistid + ") to be loaded ...");
-						if ( typeof self.XBMC.queuedIDs["songs"] != "object" ) self.XBMC.queuedIDs["songs"] = [];
-						self.XBMC.queuedIDs["songs"].push({"artistid": artistid, "albumid": albumid});
+						//consolelog("Queueing songs on albumid(" + albumid + ") for artistid(" + artistid + ") to be loaded ...");
+						//if ( typeof self.XBMC.queuedIDs["songs"] != "object" ) self.XBMC.queuedIDs["songs"] = [];
+						//self.XBMC.queuedIDs["songs"].push({"artistid": artistid, "albumid": albumid});
 						//console.log(self.XBMC.queuedIDs["songs"]);
 
 						// set reference variables
@@ -611,7 +611,7 @@ var XBMC_GUI = function() {
 						var artistid = json.result.songs[i].artistid;
 						var albumid = json.result.songs[i].albumid;
 
-						consolelog("self.XBMC.mediaLibrary[\"artists\"][" + self.XBMC.ref.artists[artistid].index + "][\"albums\"" + self.XBMC.ref.artists[artistid].item + "][" + self.XBMC.ref.artists[artistid][albumid].index + "][\"songs\"" + self.XBMC.ref.artists[artistid][albumid].item + "]");
+						//consolelog("self.XBMC.mediaLibrary[\"artists\"][" + self.XBMC.ref.artists[artistid].index + "][\"albums\"" + self.XBMC.ref.artists[artistid].item + "][" + self.XBMC.ref.artists[artistid][albumid].index + "][\"songs\"" + self.XBMC.ref.artists[artistid][albumid].item + "]");
 						//if ( typeof self.XBMC.mediaLibrary["artists"][self.XBMC.ref.artists[artistid].index]["albums" + self.XBMC.ref.artists[artistid].item][self.XBMC.ref.artists[artistid][albumid].index]["songs" + self.XBMC.ref.artists[artistid][albumid].item] == "object") {
 							// add song info...
 
