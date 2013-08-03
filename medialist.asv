@@ -82,7 +82,7 @@
       <actions>
         <action>
           <press delay="0" hold="1500" repeat="0" js="myXBMC.selectItem(list, listIndex, join, tokens)" />
-          <press delay="0" hold="0" repeat="0" js="myXBMC.requestMedia(list, listIndex, join, tokens)" />
+          <press delay="0" hold="0" repeat="0" js="myXBMC.showMediaList(list, listIndex, join, tokens)" />
         </action>
       </actions>
       <inactive s="0">
@@ -102,8 +102,8 @@
     <btn j="2" x="245" y="5" w="230" h="345" t="thumbnail" flip="None" sim="1" l="1" s="1">
       <actions>
         <action>
-          <press delay="0" hold="0" repeat="0" js="myXBMC.requestMedia(list, listIndex, join, tokens)" />
           <press delay="0" hold="1500" repeat="0" js="myXBMC.selectItem(list, listIndex, join, tokens)" />
+          <press delay="0" hold="0" repeat="0" js="myXBMC.showMediaList(list, listIndex, join, tokens)" />
         </action>
       </actions>
       <inactive s="0">
@@ -123,8 +123,8 @@
     <btn j="3" x="485" y="5" w="230" h="345" t="thumbnail" flip="None" sim="1" l="1" s="1">
       <actions>
         <action>
-          <press delay="0" hold="0" repeat="0" js="myXBMC.requestMedia(list, listIndex, join, tokens)" />
           <press delay="0" hold="1500" repeat="0" js="myXBMC.selectItem(list, listIndex, join, tokens)" />
+          <press delay="0" hold="0" repeat="0" js="myXBMC.showMediaList(list, listIndex, join, tokens)" />
         </action>
       </actions>
       <inactive s="0">
@@ -145,7 +145,7 @@
       <actions>
         <action>
           <press delay="0" hold="1500" repeat="0" js="myXBMC.selectItem(list, listIndex, join, tokens)" />
-          <press delay="0" hold="0" repeat="0" js="myXBMC.requestMedia(list, listIndex, join, tokens)" />
+          <press delay="0" hold="0" repeat="0" js="myXBMC.showMediaList(list, listIndex, join, tokens)" />
         </action>
       </actions>
       <inactive s="0">
@@ -166,7 +166,7 @@
       <actions>
         <action>
           <press delay="0" hold="1500" repeat="0" js="myXBMC.selectItem(list, listIndex, join, tokens)" />
-          <press delay="0" hold="0" repeat="0" js="myXBMC.requestMedia(list, listIndex, join, tokens)" />
+          <press delay="0" hold="0" repeat="0" js="myXBMC.showMediaList(list, listIndex, join, tokens)" />
         </action>
       </actions>
       <inactive s="0">
@@ -187,7 +187,7 @@
       <actions>
         <action>
           <press delay="0" hold="1500" repeat="0" />
-          <press delay="0" hold="0" repeat="0" js="myXBMC.requestMedia(list, listIndex, join, tokens)" />
+          <press delay="0" hold="0" repeat="0" js="myXBMC.showMediaList(list, listIndex, join, tokens)" />
         </action>
       </actions>
       <inactive s="0">
@@ -207,8 +207,8 @@
     <btn j="7" x="1445" y="5" w="230" h="345" t="thumbnail" flip="None" sim="1" l="1" s="1">
       <actions>
         <action>
-          <press delay="0" hold="1500" repeat="0" />
-          <press delay="0" hold="0" repeat="0" js="myXBMC.requestMedia(list, listIndex, join, tokens)" />
+          <press delay="0" hold="1500" repeat="0" js="myXBMC.selectItem(list, listIndex, join, tokens)" />
+          <press delay="0" hold="0" repeat="0" js="myXBMC.showMediaList(list, listIndex, join, tokens)" />
         </action>
       </actions>
       <inactive s="0">
@@ -228,8 +228,8 @@
     <btn j="8" x="1685" y="5" w="230" h="345" t="thumbnail" flip="None" sim="1" l="1" s="1">
       <actions>
         <action>
-          <press delay="0" hold="1500" repeat="0" />
-          <press delay="0" hold="0" repeat="0" js="myXBMC.requestMedia(list, listIndex, join, tokens)" />
+          <press delay="0" hold="1500" repeat="0" js="myXBMC.selectItem(list, listIndex, join, tokens)" />
+          <press delay="0" hold="0" repeat="0" js="myXBMC.showMediaList(list, listIndex, join, tokens)" />
         </action>
       </actions>
       <inactive s="0">

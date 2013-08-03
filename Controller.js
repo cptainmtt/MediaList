@@ -323,7 +323,7 @@ var XBMC_Controller = function(params) {
 		for (var i = 0; i < arguments.length; i++) if ( cases[typeof arguments[i]] ) cases[typeof arguments[i]](arguments[i]);
 		consolelog("Get[seasons](): params.length = " + params.length);
 
-		self.json("VideoLibrary.GetSeasons", { "tvshowid" : params.id || params[0], "sort": { "order": ((typeof params.order == "string") ? params.order : "ascending"), "method": ((typeof params.method == "string") ? params.method : "title")}, "properties": getMediaProperties("seasons")}, ((params.jsonid) ? params.jsonid : self.ids.seasons)); // for Frodo
+		self.json("VideoLibrary.GetSeasons", { "tvshowid" : params.listid || params[0], "sort": { "order": ((typeof params.order == "string") ? params.order : "ascending"), "method": ((typeof params.method == "string") ? params.method : "title")}, "properties": getMediaProperties("seasons")}, ((params.jsonid) ? params.jsonid : self.ids.seasons)); // for Frodo
 	};
 
 	self.Get["episodes"] = function(params) {
@@ -335,7 +335,7 @@ var XBMC_Controller = function(params) {
 
 		if (typeof episode == "undefined") episode = {"tvshowid": "", "season": ""};
 
-		self.json("VideoLibrary.GetEpisodes", {"sort": { "order": ((typeof params.order == "string") ? params.order : "ascending"), "method": ((typeof params.method == "string") ? params.method : "label")}, "tvshowid": params.returnid || params[1], "season": params.id || params[0], "properties": getMediaProperties("episodes")}, ((params.jsonid) ? params.jsonid : self.ids.episodes)); // for Frodo
+		self.json("VideoLibrary.GetEpisodes", {"sort": { "order": ((typeof params.order == "string") ? params.order : "ascending"), "method": ((typeof params.method == "string") ? params.method : "label")}, "tvshowid": params.baseid || params[1], "season": params.listid || params[0], "properties": getMediaProperties("episodes")}, ((params.jsonid) ? params.jsonid : self.ids.episodes)); // for Frodo
 	};
 
 	self.Get["artists"] = function(params) {
@@ -350,7 +350,7 @@ var XBMC_Controller = function(params) {
 		//album = params.queuedIDs["albums"].shift();
 		if (typeof album == "undefined") album = {"artistid": ""};
 
-		self.json("AudioLibrary.GetAlbums", { "filter":{"artistid": params[0]}, "properties": getMediaProperties("albums") }, (params.jsonid) ? params.jsonid : self.ids.albums);			// Frodo
+		self.json("AudioLibrary.GetAlbums", { "filter":{"artistid": params.listid}, "properties": getMediaProperties("albums") }, (params.jsonid) ? params.jsonid : self.ids.albums);			// Frodo
 		//self.json("AudioLibrary.GetAlbums", { "properties": getMediaProperties("albums") }, ((typeof id != "undefined") ? id : self.ids.albums));			// Frodo
 	};
 
@@ -360,7 +360,7 @@ var XBMC_Controller = function(params) {
 		//song = params.queuedIDs["songs"].shift();
 		if (typeof song == "undefined") song = {"artistid": "", "albumid": ""};
 
-		self.json("AudioLibrary.GetSongs", { "filter":{"albumid": song.albumid}, "sort": {"order": "ascending", "method": "track"}, "properties": getMediaProperties("songs")}, ((typeof params.id == "number") ? params.id : self.ids.songs));
+		self.json("AudioLibrary.GetSongs", { "filter":{"albumid": params.listid}, "sort": {"order": "ascending", "method": "track"}, "properties": getMediaProperties("songs")}, ((typeof params.id == "number") ? params.id : self.ids.songs));
 		//self.json("AudioLibrary.GetSongs", { "sort": {"order": "ascending", "method": "artist"}, "properties": getMediaProperties("songs")}, ((typeof id != "undefined") ? id : self.ids.songs));
 
 	};

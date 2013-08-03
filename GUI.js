@@ -22,6 +22,7 @@ var XBMC_GUI = function() {
 			media_return_button:	1002,	// D(button)
 		},
 		XBMC:			null,
+		listLoading:	false,
 	};
 
 
@@ -67,20 +68,19 @@ var XBMC_GUI = function() {
 	// other buttons sets "[listtype]" which is used to pdate the media list title serial join
 	// use listIndex and join arguments
 	*/
-	self.requestMedia = function(list, listIndex, join) {
-		consolelog("requestMedia(): list = " + list + ", listIndex = " + listIndex + ", join = " + join);
+	self.showMediaList = function(list, listIndex, join) {
+		consolelog("showMediaList(): list = " + list + ", listIndex = " + listIndex + ", join = " + join);
 		var tokens = {}, params = {};
 		var cases = {
 			string: function(arg) {
 				//consolelog("string case: pre check params.type = " + params.type);
-				//if (arg.indexOf(":") != -1) {
+				if (arg.indexOf(":") != -1) {
 					// arg = join
-					//params.join = arg.splice(-1); // get the number of the join (1-itemsPerRow(8))
-					//params.index = arg.slice(arg.indexOf(":")+1, arg.lastIndexOf(":"));
-					///consolelog("arg.slice(arg.indexOf(\":\"), arg.lastIndexOf(\":\")) = '" + arg.slice(arg.indexOf(":")+1, arg.lastIndexOf(":")) + "'");
+					params.join = arg.splice(-1); // get the number of the join (1-itemsPerRow(8))
+					params.index = arg.slice(arg.indexOf(":")+1, arg.lastIndexOf(":"));
+					/consolelog("arg.slice(arg.indexOf(\":\"), arg.lastIndexOf(\":\")) = '" + arg.slice(arg.indexOf(":")+1, arg.lastIndexOf(":")) + "'");
 				// check if passed type string if the type hasnt already been set
-				//} else
-				if (!params.listtype) params.listtype = self.XBMC.checkMediaType(arg, false); // don't return default type
+			} else if (!params.listtype) params.listtype = self.XBMC.checkMediaType(tokenize(arg, false), false); // don't return default type
 				//consolelog("string case: post check params.basetype = " + params.basetype);
 			},
 			object: function(obj) { tokens = obj },
@@ -88,9 +88,9 @@ var XBMC_GUI = function() {
 		try {
 		for ( var i = 0; i < arguments.length; i++ ) (cases[typeof arguments[i]]) ? cases[typeof arguments[i]](arguments[i]) : ""; // read arguments
 		} catch (e) {
-			consolelog("requestMedia(): exception caught in argument loop - " + e);
+			consolelog("showMediaList(): exception caught in argument loop - " + e);
 		}
-		consolelog("\n\nrequestMedia(): initial arguments = --v, tokens = ------v", arguments, tokens);
+		consolelog("\n\nshowMediaList(): initial arguments = --v, tokens = ------v", arguments, tokens);
 
 		if ( tokens["[file]"] ) {
 			// play file
@@ -98,7 +98,7 @@ var XBMC_GUI = function() {
 			// use fanart token to set bg? or set in now playing loop... delete token from buildMediaList if not in use
 		} else {
 			//set media page join = 1 // * (4)
-			consolelog("requestMedia(): setting mediaList join = 1");
+			consolelog("showMediaList(): setting mediaList join = 1");
 			CF.setJoin("d"+self.joins.mediaList, 1);
 
 			// if params.basetype has been passed as argument then a base media type has been selected
@@ -131,13 +131,13 @@ var XBMC_GUI = function() {
 				//	tokens: tokens }
 				//]);
 
-				consolelog("requestMedia(): pre loadMediaList tokens == ---v", tokens);
+				consolelog("showMediaList(): pre loadMediaList tokens == ---v", tokens);
 			}
 
 			// get media type and id of media type to load if not passed by string already
 			/*
 			if ( !params.basetype ) {
-				consolelog("requestMedia(): setting params from tokens");
+				consolelog("showMediaList(): setting params from tokens");
 				for ( key in tokens ) {
 					// loops through tokens, removes square brackets before setting params keys
 					if (tokens.hasOwnProperty(key)) params[key.slice(1, -1)] = tokens[key];
@@ -145,30 +145,30 @@ var XBMC_GUI = function() {
 
 				//params = { type: tokens["[type]"], id: tokens["[id]"] };
 			} else if (!params.listtype) params.listtype = params.basetype;
-			consolelog("requestMedia(): Found params = ---v", params);
+			consolelog("showMediaList(): Found params = ---v", params);
 			*/
 
 			// set the tokens for the back button
 			consolelog("Setting the return button tokens ---v");
 			if (tokens["[return]"]) CF.setToken("d"+self.joins.media_return_button, "[return]", tokens["[return]"]); // triggers event to show/hide the back button
 
-			consolelog("requestMedia(): self.XBMC.currentList.listtype != (params.basetype = self.XBMC.checkMediaType(" + params.listtype + ", false)) = " + (self.XBMC.currentList.listtype != (params.listtype = self.XBMC.checkMediaType(params.listtype, false))));
-			consolelog("requestMedia(): " + self.XBMC.currentList.listtype + " != (" + params.listtype + " = self.XBMC.checkMediaType(" + params.listtype + ", false)) = " + (self.XBMC.currentList.listtype != (params.listtype = self.XBMC.checkMediaType(params.listtype, false))));
+			consolelog("showMediaList(): self.XBMC.currentList.listtype != (params.basetype = self.XBMC.checkMediaType(" + params.listtype + ", false)) = " + (self.XBMC.currentList.listtype != (params.listtype = self.XBMC.checkMediaType(params.listtype, false))));
+			consolelog("showMediaList(): " + self.XBMC.currentList.listtype + " != (" + params.listtype + " = self.XBMC.checkMediaType(" + params.listtype + ", false)) = " + (self.XBMC.currentList.listtype != (params.listtype = self.XBMC.checkMediaType(params.listtype, false))));
 			// check if media list needs updating -- NOT WORKING! only works for base lists
 			if (self.XBMC.currentList.listtype != (params.listtype = self.XBMC.checkMediaType(params.listtype, false)) ) {
 				//clear the media list - triggers join change event to show loading elements
-				console.log("requestMedia(): clearing the media list")
+				console.log("showMediaList(): clearing the media list")
 				CF.listRemove("l"+self.joins.mediaList);
 
 				//set media page title join and tokens, set value to trigger join change event
 				// param = {basetype, listtype, baseid, listid.....}
 				setMediaListTitle(params);
 
-				//consolelog("requestMedia(): updating the GlobalTokens - should fire on change event");
+				//consolelog("showMediaList(): updating the GlobalTokens - should fire on change event");
 				//CF.setJoins([{join: CF.GlobalTokensJoin, value: GlobalTokensCounter++, tokens: params } ]);
 
 				// load media info from XBMC (if req'd) --> moved to media title join change event
-				//consolelog("Starting self.loadMediaList(" + params + " from requestMedia()");
+				//consolelog("Starting self.loadMediaList(" + params + " from showMediaList()");
 				//console.log(params);
 				//self.loadMediaList(params);
 			} else {
@@ -210,7 +210,7 @@ var XBMC_GUI = function() {
 		console.log(arguments);
 		var params = {};
 		var cases = {
-			object:		function(obj) { if ( self.XBMC.checkMediaType(obj.listtype, false) ) params = obj },
+			object:		function(obj) { if ( self.XBMC.checkMediaType(tokenize(obj, false).listtype, false) ) params = obj },
 			string:		function(str) { if ( !params.listtype ) params["listtype"] = self.XBMC.checkMediaType(str, false) },
 			boolean:	function(bool) { if ( typeof params.force != "boolean" ) params["force"] = bool },
 		};
@@ -227,12 +227,14 @@ var XBMC_GUI = function() {
 		if (arguments.length > 0) {
 		//if (params.listtype) {
 			// make sure all list variables are defined...
-			p = params;
+			p = tokenize(params, false);
 			params = {};
 			consolelog("p should not be an empty object unless params above is empty ---v", p);
 
 			params.listtype = p.type || p.listtype || null;
-			params.basetype = p.basetype || params.listtype; // defaults to list type as this it what is set when a string is passed
+			//  TODO !! self.XBMC.checkBaseMediaTypes()
+			//params.basetype = p.basetype || self.XBMC.checkBaseMediaTypes(params.listtype); // defaults to list type as this it what is set when a string is passed - need check basetypes function?
+			params.basetype = p.basetype || params.listtype; // defaults to list type as this it what is set when a string is passed - need check basetypes function?
 			params.listid = p.listid || null;
 			params.baseid = p.baseid || null;
 			consolelog("order in params should be listtype, basetype, listid, baseid ---v", params);
@@ -339,10 +341,12 @@ var XBMC_GUI = function() {
 			} finally {
 				try {
 					//if ( libraryRequestQueue[Object.keys(libraryRequestQueue)[0]] && self.XBMC.joins.connected.value ) {
-					if ( self.XBMC.joins.connected.value ) {
+					if ( self.XBMC.joins.connected.value && !self.listLoading ) {
 						// get next request in queue
 						params = JSON.parse(libraryRequestQueue[0]);
 
+						self.listLoading = true;
+						consolelog("set self.listLoading = " + self.listLoading);
 						// load function to send json request
 						self.XBMC.Get[params.listtype](params);
 						consolelog("loadMediaList(): queueing json command to get a \"" + params.listtype + "\" list from XBMC...");
@@ -381,470 +385,478 @@ var XBMC_GUI = function() {
 		type = self.XBMC.checkMediaType(json.id, false);
 		consolelog("buildMediaList(): type = " + type);
 
-		if ( type && !json.hasOwnProperty("error") ) {
-			//json = self.XBMC.mediaLibrary[type];
-			var itemCount = 0;
-			var rowCount = 0;
-			var list = [];
-			var rowItems = {};
-			var maxPerRow = 8;
-			//var tokens = {};
-			var back = {}, listid = null, baseid = null, major, minor, thumbnail, fanart = null, playcount, file = null, resume, load = null; // declare, set scope and reset
+		try {
+			if ( type && !json.hasOwnProperty("error") ) {
+				//json = self.XBMC.mediaLibrary[type];
+				var itemCount = 0;
+				var rowCount = 0;
+				var list = [];
+				var rowItems = {};
+				var maxPerRow = 8;
+				//var tokens = {};
+				var back = {}, listid = null, baseid = null, major, minor, thumbnail, fanart = null, playcount, file = null, resume, load = null; // declare, set scope and reset
 
-			var cases = {};
+				var cases = {};
 
-			var queueItem = function() {
-						// load the sub-list for this item
+				var queueItem = function(params) {
+							// load the sub-list for this item
 
-						// THIS IS WHERE THE SEASON/EPISODE LIST LOADING STOP!!! DICK!
+							// THIS IS WHERE THE SEASON/EPISODE LIST LOADING STOP!!! DICK!
 
-						consolelog("buildMediaList() is calling loadMediaList(type: " + listtype + ", listid: " + listid + ", baseid: " + baseid + ")");
+							consolelog("buildMediaList() is calling loadMediaList(type: " + listtype + ", listid: " + listid + ", baseid: " + baseid + ")");
 
-						// ADD BACK IN WHEN EVERYTHING WORKING
-						//self.loadMediaList({type: (listtype) ? load : null, listid: (listid) ? listid : null, baseid: (baseid) ? baseid : null});
-			};
-
-			var movies = function(i) {
-				try {
-					// "thumbnail", "fanart", "genre", "playcount", "mpaa", "rating", "runtime", "year", "file", "resume"
-					//id			= json.result.movies[i].movieid;  // not required unless going to have a movie details action
-					resume		= json.result.movies[i].resume;
-					file		= json.result.movies[i].file;
-					fanart		= json.result.movies[i].fanart;
-					thumbnail	= json.result.movies[i].thumbnail;
-					major		= json.result.movies[i].label;
-					minor		= json.result.movies[i].year;
-					playcount	= (json.result.movies[i].playcount > 0) ? 1 : 0;
-
-					// no retun button shown
-				} catch (e) {
-					consolelog("buildMediaList(): Exception caught creating a movie item");
-				}
-			};
-
-			var tvshows = function() {
-				try {
-					// result["thumbnail", "fanart", "title|label", "year", "episode", "art.fanart|poster", "file", "playcount", "watchedepisodes"]
-					tvshowid = json.result.tvshows[i].tvshowid;
-
-					//consolelog("Queueing seasons for tvshowid(" + tvshowid + ") to be loaded ...");
-					if ( typeof self.XBMC.queuedIDs["seasons"] != "object" ) self.XBMC.queuedIDs["seasons"] = [];
-					self.XBMC.queuedIDs["seasons"].push({"tvshowid": tvshowid});
-
-					// set reference variables
-					//consolelog("typeof self.XBMC.ref.tvshows = " + typeof self.XBMC.ref.tvshows);
-					if (typeof self.XBMC.ref.tvshows == "undefined") self.XBMC.ref.tvshows = {};
-					try {
-						self.XBMC.ref.tvshows[tvshowid] = {"index": rowCount, "item": itemCount + 1};
-					} catch (e) {
-						consolelog("FAILED TO SET TV SHOWS REFERENCE VARIABLE");
-					}
-					fanart		= json.result.tvshows[i].fanart;
-					thumbnail	= json.result.tvshows[i].thumbnail;
-					major		= json.result.tvshows[i].title;
-					minor		= json.result.tvshows[i].year;
-					playcount	= (json.result.tvshows[i].watchedepisodes == json.result.tvshows[i].episode) ? 1 : 0;
-					//basetype	= "tvshows";
-					listtype	= "seasons";
-					listid		= tvshowid;
-					back		= {listtype: "tvshows"};
-					// no return button shown
-					queueItem();
-
-					// load all the alubms for this artist
-					//self.loadMediaList({type: load, id: id});
-				} catch (e) {
-					consolelog("Failed to load a tv show - " + e);
-				}
-			};
-
-			var seasons = function(i) {
-				try {
-					console.log(json.result);
-					// "season", "tvshowid", "showtitle", "year", "playcount", "episode", "thumbnail", "file", "art", "watchedepisodes"
-					// check to make sure there is at least one season available for tvshowid
-					if (json.result.seasons[i].hasOwnProperty("tvshowid")) {
-						var tvshowid = json.result.seasons[i].tvshowid;
-						var season = json.result.seasons[i].season;
-
-						consolelog("Queueing episodes in season(" + season + ") for tvshowid(" + tvshowid + ") to be loaded ...");
-						if ( typeof self.XBMC.queuedIDs["episodes"] != "object" ) self.XBMC.queuedIDs["episodes"] = [];
-						self.XBMC.queuedIDs["episodes"].push({"tvshowid": tvshowid, "season": season});
-						//console.log(self.XBMC.queuedIDs["episodes"]);
-
-						// set reference variables
-						consolelog("typeof self.XBMC.ref.tvshows[" + tvshowid + "] = " + typeof self.XBMC.ref.tvshows[tvshowid]);
-						consolelog("typeof self.XBMC.ref.tvshows[" + tvshowid + "][" + season + "] = " + typeof self.XBMC.ref.tvshows[tvshowid][season]);
-
-						if (typeof self.XBMC.ref.tvshows[tvshowid][season] == "undefined") self.XBMC.ref.tvshows[tvshowid][season] = {};
-						self.XBMC.ref.tvshows[tvshowid][season] = {"index": rowCount, "item": itemCount + 1};
-
-						consolelog("typeof self.XBMC.ref.tvshows[" + tvshowid + "][" + season + "] = " + typeof self.XBMC.ref.tvshows[tvshowid][season]);
-
-						consolelog("typeof self.XBMC.mediaList.tvshows[" + self.XBMC.ref.tvshows[tvshowid].index + "][\"seasons\"" + self.XBMC.ref.tvshows[tvshowid].item + "] = " + typeof self.XBMC.mediaList.tvshows[ self.XBMC.ref.tvshows[tvshowid].index ]["seasons" + self.XBMC.ref.tvshows[tvshowid].item]);
-						//if ( typeof self.XBMC.mediaList.tvshows[ self.XBMC.ref.tvshows[tvshowid].index ]["seasons" + self.XBMC.ref.tvshows[tvshowid].item] == "object" ) {
-							// add season info and tokens required to get the episode list...
-							fanart		= json.result.seasons[i].art.fanart;
-							thumbnail	= json.result.seasons[i].art.poster;
-							major		= json.result.seasons[i].title;
-							minor		= json.result.seasons[i].year;
-							playcount	= (json.result.seasons[i].watchedepisodes == json.result.seasons[i].episode) ? 1 : 0;
-							//basetype	= "tvshows"
-							listtype	= "episodes";
-							listid		= season;
-							baseid		= tvshowid;
-							back		= {listtype: "seasons", id: season};
-
-							// load all the episodes in the selected season for this tv show
-							//self.loadMediaList({type: load, id: id, baseid: baseid});
-							queueItem();
-						//}
-					} else consolelog("could not find tvshowid in json response... discarding item from list");
-				} catch (e) {
-					consolelog("Failed to load a tv show season. The tvshowid(" + tvshowid + ") doesnt exist - " + e);
-				}
-			};
-
-			var episodes = function(i) {
-				try {
-					// "episode", "season", "tvshowid", "showtitle", "resume", "title", "year", "playcount", "thumbnail", "file", "art.posert|fanart", "watchedepisodes"
-					var tvshowid = json.result.episodes[i].tvshowid;
-					var season = json.result.episodes[i].season;
-
-					consolelog("self.XBMC.mediaLibrary[\"tvshows\"][" + self.XBMC.ref["tvshows"][tvshowid].index + "][\"seasons\"" + self.XBMC.ref["tvshows"][tvshowid].item + "][" + self.XBMC.ref["tvshows"][tvshowid][season].index + "][\"episodes\"" + self.XBMC.ref["tvshows"][tvshowid][season].item + "]");
-					//if ( typeof self.XBMC.mediaLibrary["tvshows"][self.XBMC.ref["tvshows"][tvshowid].index]["seasons" + self.XBMC.ref["tvshows"][tvshowid].item][self.XBMC.ref["tvshows"][tvshowid][season].index]["episodes" + self.XBMC.ref["tvshows"][tvshowid][season].item] == "object") {
-						// add episode info...
-						file		= json.result.episodes[i].file;
-						fanart	 	= json.result.episodes[i].art.fanart;
-						resume		= json.result.episodes[i].resume;
-						thumbnail	= json.result.episodes[i].art.poster;
-						major		= json.result.episodes[i].title;
-						minor		= "S" + json.result.episodes[i].season + ":E" + json.result.episodes[i].episode;
-						playcount	= (json.result.episodes[i].watchedepisodes == json.result.episodes[i].playcount) ? 1 : 0;
-						//basetype	= "tvshows";
-						//listtype	= null; // not req'd
-						//id		= season; // not req'd
-						//baseid	= tvshowid; // not req'd?
-						//back		= {listtype: "seasons", id: season, baseid: tvshows}; // not req'd
-					//}
-				} catch (e) {
-					consolelog("Failed to load a tv show episode. The episode in season(" + season + ") of tvshowid(" + tvshowid + ") don't exist? - " + e);
-				}
-			};
-
-			var artists = function(i) {
-				try {
-					console.log(json.result.artists[i]);
-					// "artist", "artistid", "thumbnail", "fanart", "formed", "label"
-					artistid = json.result.artists[i].artistid;
-					consolelog("Queueing albums for artist(" + artistid + ") to be loaded ...");
-					if ( typeof self.XBMC.queuedIDs["albums"] != "object" ) self.XBMC.queuedIDs["albums"] = [];
-					self.XBMC.queuedIDs["albums"].push({"artistid": artistid});
-					//console.log(self.XBMC.queuedIDs["albums"]);
-
-					// set reference variables
-					//if (typeof self.XBMC.ref["artists"][artistid] == "undefined") self.XBMC.ref["artists"][artistid] = [];
-					//self.XBMC.ref["artists"][artistid] = {"index": rowCount, "item": itemCount + 1};
-
-					fanart		= json.result.artists[i].fanart;
-					thumbnail	= json.result.artists[i].thumbnail;
-					major		= json.result.artists[i].artist;
-					minor		= json.result.artists[i].formed;
-					//type		= "artists";
-					listtype	= "albums";
-					listid			= artistid;
-					back		= {listtype : "artists"};
-
-					// load all the albums for this artist
-					//self.loadMediaList({type: load, id: id});
-
-				} catch (e) {
-					consolelog("Failed to load an artist - " + e);
-				}
-			};
-
-			var albums = function(i) {
-				try {
-					// "artistid", "albumartistid", "albumid", "thumbnail", "title", "fanart", "year", "playcount"
-					var artistid = json.result.albums[i].artistid;
-					var albumid = json.result.albums[i].albumid;
-
-					consolelog("Queueing songs on albumid(" + albumid + ") for artistid(" + artistid + ") to be loaded ...");
-					if ( typeof self.XBMC.queuedIDs["songs"] != "object" ) self.XBMC.queuedIDs["songs"] = [];
-					self.XBMC.queuedIDs["songs"].push({"artistid": artistid, "albumid": albumid});
-					//console.log(self.XBMC.queuedIDs["songs"]);
-
-					// set reference variables
-					//if (typeof self.XBMC.ref["artists"][artistid][albumid] == "undefined") self.XBMC.ref["artists"][artistid] = [];
-					//self.XBMC.ref["artists"][artistid][albumid] = {"index": rowCount, "item": itemCount + 1};
-
-					// WHAT'S THIS IF DOING? - checking that the parent list has been loaded? who gives a fuck??!!
-					//if ( typeof self.XBMC.mediaLibrary["artists"][ self.XBMC.ref.artists[artistid].index ]["albums" + self.XBMC.ref.artists[artistid].item] == "object" ) {
-						//var leveloneid	= artistid;
-						fanart		= json.result.albums[i].fanart;
-						thumbnail	= json.result.albums[i].thumbnail;
-						major		= json.result.albums[i].title;
-						minor		= json.result.albums[i].year;
-						playcount	= json.result.albums[i].playcount;
-						//type		= "artists";
-						listtype	= "songs";
-						listid		= albumid;
-						baseid		= artistid;
-						back		= {listtype: "albums", id: artistid}; // info requred to load the artists list
-
-						// load all the songs in the selected album for this artist
-						//self.loadMediaList({type: load, id: id, baseid: baseid});
-					//}
-				} catch (e) {
-					consolelog("Failed to load an album. The artistid(" + artistid + ") doesnt exist? - " + e);
-				}
-			};
-
-			var songs = function(i) {
-				try {
-					// "thumbnail", "fanart", "title", "track", "file", "albumartistid", "albumid", "songid", "playcount", "album"
-					var artistid = json.result.songs[i].artistid;
-					var albumid = json.result.songs[i].albumid;
-
-					consolelog("self.XBMC.mediaLibrary[\"artists\"][" + self.XBMC.ref.artists[artistid].index + "][\"albums\"" + self.XBMC.ref.artists[artistid].item + "][" + self.XBMC.ref.artists[artistid][albumid].index + "][\"songs\"" + self.XBMC.ref.artists[artistid][albumid].item + "]");
-					//if ( typeof self.XBMC.mediaLibrary["artists"][self.XBMC.ref.artists[artistid].index]["albums" + self.XBMC.ref.artists[artistid].item][self.XBMC.ref.artists[artistid][albumid].index]["songs" + self.XBMC.ref.artists[artistid][albumid].item] == "object") {
-						// add song info...
-
-						//var leveloneid = artistid;
-						//var leveltwoid = albumid;
-						fanart		= json.result.songs[i].fanart;
-						file		= file;
-						thumbnail	= json.result.songs[i].thumbnail;
-						major		= json.result.songs[i].track + ". " +json.result.songs[i].title;
-						minor		= json.result.songs[i].album;
-						playcount	= json.result.songs[i].playcount;
-						//basetype		= "artists";
-						//listtype		= null;		// not req'd
-						//id		= albumid;	// not req'd
-						//baseid	= artistid;	// not req'd
-						//back		= {listtype: "albums", id: artistid}; // not req'd
-
-						queueItem();
-					//}
-				} catch (e) {
-					consolelog("Failed to load a tv show episode list. The songs on season(" + season + ") of tvshowid(" + tvshowid + ") don't exist - " + e);
-				}
-
-				// load the sub-list for this item
-
-				// THIS IS WHERE THE SEASON/EPISODE LIST LOADING STOP!!! DICK!
-
-				//consolelog("buildMediaList() is calling loadMediaList(load: " + load + ", id: " + id + ", =
-
-				//self.loadMediaList({type: (load) ? load : null, id: (id) ? id : null, baseid: (baseid) ? baseid : null});
-
-			};
-
-
-			addThumbnail = function(fake) {
-				// fake == false => add a empty/hidden thumbnail
-				var tokens = {};
-				if (!fake) {
-					if ( fanart ) {
-						tokens["[fanart]"] = cleanImage(fanart);
-						// CF.loadAsset(tokens["[fanart]"], CF.UTF8); // reeeeeeally doesnt like this :-!
-					}
-					if ( file )		tokens["[file]"]	= decode_utf8(file);
-					if ( resume )	tokens["[resume]"]	= resume;
-					//if ( basetype )		tokens["[basetype]"]	= basetype;						// fundamental type of list (movies, tvshows, artists, playlists) only set from sidemenu
-					//if ( listtype )	tokens["[listtype]"]	= listtype;						// media type to load for next list on thumbnail click
-					tokens["[listtype]"]	= type;						// media type to load for next list on thumbnail click
-					if ( listid )		tokens["[listid]"]		= listid;						// used to locate first+seconds level objects in mediaLibrary[]
-					if ( baseid )	tokens["[baseid]"]	= baseid;					// used to locate first level object in mediaLibrary[]
-					if ( back )		tokens["[return]"]	= JSON.stringify( back ); 	// info for back button on next list
-					//tokens["[" + ((base) ? "base_" : "") + "join]"] = itemCount+1;
-					//tokens["[" + ((base) ? "base_" : "") + "index]"] = rowCount;
-					//if (base) tokens["[base_join]"] = itemCount+1;
-					//if (base) tokens["[base_index]"] = rowCount;
-				}
-
-				rowItems["d"+(self.joins.firstWatched+itemCount)]	= (!fake) ? ((playcount > 0) ? 1 : 0) : "";
-				rowItems["s"+(self.joins.firstTitle+itemCount)]		= (!fake) ? decode_utf8(major) : "";
-				rowItems["s"+(self.joins.firstYear+itemCount)]		= (!fake) ? (decode_utf8((typeof minor == "number") ? minor.toString() : minor)) : "";
-				rowItems["s"+(self.joins.firstThumbnail+itemCount)]	= (!fake) ? cleanImage(thumbnail) : "";
-				rowItems["d"+(self.joins.firstThumbnail+itemCount)]	= { // button for selecting item
-					"value": 0,
-					"tokens": tokens
+							// ADD BACK IN WHEN EVERYTHING WORKING
+							self.loadMediaList(params);
 				};
 
-				itemCount++;
-			};
-
-			var padRow = function() {
-				// only pad if the row isnt empty
-				if (itemCount < maxPerRow && rowItems.length > 0 ) {
-					// hide/clear remaining items in row
-					while (itemCount < maxPerRow) addThumbnail(false); // empty thumbnail
-
-					// add last row to array
-					list.push(rowItems);
-				}
-			};
-
-
-			// create the cases object to call the req'd functions
-			var cases = {
-				movies: 	movies,
-				tvshows:	tvshows,
-				seasons:	seasons,
-				episodes: 	episodes,
-				artists:	artists,
-				albums:		albums,
-				songs:		songs
-			};
-
-			// base types lookup array
-			var basetype = {
-				movies:		"movies",
-				tvshows:	"tvshows",
-				seasons:	"tvshows",
-				episodes:	"tvshows",
-				artists:	"artists",
-				albums:		"artists",
-				songs:		"artists"
-			};
-
-			//consolelog("cases = --v");
-			//console.log(cases);
-
-			try {
-				// create the list by looping thru the json response object
-				for (var i = 0; i < json.result.limits.total; i++) {
-					if (itemCount == maxPerRow) {
-						itemCount = 0;
-						rowCount++;
-
-						list.push(rowItems);
-
-						rowItems = {}; // reset horizontal row list
-					}
-
-					if (cases[type]){
-						cases[type](i);		// build the thumbnail
-						addThumbnail();		// add the thumbnail to the row
-
-					}
-				}
-			} catch (e) {
-				consolelog("buildMediaList(): Exception caught in json.result for loop... - " + e);
-
-			}
-
-			padRow(); // clean up last row (hide empty thumbnails)
-
-			consolelog("Finished creating list for " + type);
-			//self.XBMC.mediaLibrary[type] = list; // set here or in GT join change event??  join change event
-			//consolelog("WHAT THE mediaLibrary[currentList] SHOULD LOOK LIKE!! --v");
-
-			consolelog("list object = --v", list);
-
-			// !! DONT ADD TO LIST HERE - THIS JUST BUILDS IT AND ADD'S TO GT... INTERVAL WATCHING mediaLibrary[type] ADD'S THE LIST !!
-			//CF.listRemove("l"+self.joins.mediaList); // double check list is empty to avoid duplicating
-			//CF.listAdd("l"+self.joins.mediaList, list); //add array to iviewer liste=
-
-			// NEED TO HAVE LIST TITLE SET BEFORE HERE
-
-
-			// set mediaList global token [type]
-			CF.getJoin(CF.GlobalTokensJoin, function(j, v, t) {
-
-				var l = {};
-				try {
-					l = JSON.parse(t["[" + basetype[type] + "]"]);
-				} catch(e) {
-					consolelog("loadMediaList(): Failed to get " + basetype[type] + " from GT join. Possibly not created yet...", "GT [" + basetype[type] + "] = '" + t["[" + basetype[type] + "]"] + "'", new Error("The GlobalToken [" + basetype[type] + "] is empty..."));
-				} finally {
-
-					// IS THERE A BETTER WAY TO DO THIS??
-
-					switch(type) {
-					case "seasons":
-					case "albums":
-						// check declared as object
-						l["[" + basetype[type] + "]"] = l[ "[" + basetype[type] + "]"] || {};
-						l["[" + basetype[type] + "]"]["[" + type + "]"] = l[ "[" + basetype[type] + "]"]["[" + type + "]"] || {};
-						l["[" + basetype[type] + "]"]["[" + type + "]"][baseid] = l[ "[" + basetype[type] + "]"]["[" + type + "]"][baseid] || {};
-
-						//l[ "base type" ][ "[seasons/albums]" ][ "tvshowid/artistid" ]
-						l["[" + basetype[type] + "]"]["[" + type + "]"][listid]["list"] = list;
-						break;
-					case "episodes":
-					case "songs":
-						// check declared as object
-						l["[" + basetype[type] + "]"] = l[ "[" + basetype[type] + "]"] || {};
-						l["[" + basetype[type] + "]"]["[" + type + "]"] = l[ "[" + basetype[type] + "]"]["[" + type + "]"] || {};
-						l["[" + basetype[type] + "]"]["[" + type + "]"][baseid] = l[ "[" + basetype[type] + "]"]["[" + type + "]"][baseid] || {};
-						l["[" + basetype[type] + "]"]["[" + type + "]"][baseid][listid] = l[ "[" + basetype[type][listid] + "]"]["[" + type + "]"][baseid][listid] || {};
-
-						//l[ "base type" ][ "[episodes/songs]" ][ "tvshowid/artistid" ][ "season/albumid" ]
-						l["[" + basetype[type] + "]"]["[" + type + "]"][baseid][listid]["list"] = list;
-						break;
-					case "movies":
-					case "tvshows":
-					case "artists":
-						l["[" + basetype[type] + "]"] = l[ "[" + basetype[type] + "]"] || {};
-						consolelog("setting up [" + basetype[type] + "] token to be added to GT...");
-						l["[" + basetype[type] + "]"]["list"] = list;
-						consolelog("l == ---v", l);
-						// delete the media type from the queue of lists to be loaded
-						//if( delete libraryRequestQueue[type]["[list]"] ) {
-						//	if (!libraryRequestQueue[type]) delete libraryRequestQueue[type];
-						//}
-						consolelog("!libraryRequestQueue[type] == " + !libraryRequestQueue[type]);
-					};
-
+				var movies = function(i) {
 					try {
-						//gtok = {};
-						consolelog("adding new list to GlobalTokens [" + basetype[type] + "] = ---v", l);
-						// convert list from an object to a string for storage as a GlobalToken
-						l["[" + basetype[type] + "]"] = JSON.stringify(l["[" + basetype[type] + "]"]);
+						// "thumbnail", "fanart", "genre", "playcount", "mpaa", "rating", "runtime", "year", "file", "resume"
+						//id			= json.result.movies[i].movieid;  // not required unless going to have a movie details action
+						resume		= json.result.movies[i].resume;
+						file		= json.result.movies[i].file;
+						fanart		= json.result.movies[i].fanart;
+						thumbnail	= json.result.movies[i].thumbnail;
+						major		= json.result.movies[i].label;
+						minor		= json.result.movies[i].year;
+						playcount	= (json.result.movies[i].playcount > 0) ? 1 : 0;
 
-						//consolelog("l[\"[\"" + basetype[type] + "\"]\"] = " + l["[" + basetype[type] + "]"]);
-						CF.setJoins([
-							// triggers join change event to update mediaLibrary[type]? hopefully AFTER the current list GT is changed... :-!
-							{ join: CF.GlobalTokensJoin, value: GlobalTokensCounter++, tokens: l }
-						]);
+						// no retun button shown
+					} catch (e) {
+						consolelog("buildMediaList(): Exception caught creating a movie item");
+					}
+				};
+
+				var tvshows = function() {
+					try {
+						// result["thumbnail", "fanart", "title|label", "year", "episode", "art.fanart|poster", "file", "playcount", "watchedepisodes"]
+						tvshowid = json.result.tvshows[i].tvshowid;
+
+						//consolelog("Queueing seasons for tvshowid(" + tvshowid + ") to be loaded ...");
+						if ( typeof self.XBMC.queuedIDs["seasons"] != "object" ) self.XBMC.queuedIDs["seasons"] = [];
+						self.XBMC.queuedIDs["seasons"].push({"tvshowid": tvshowid});
+
+						// set reference variables
+						//consolelog("typeof self.XBMC.ref.tvshows = " + typeof self.XBMC.ref.tvshows);
+						if (typeof self.XBMC.ref.tvshows == "undefined") self.XBMC.ref.tvshows = {};
+						try {
+							self.XBMC.ref.tvshows[tvshowid] = {"index": rowCount, "item": itemCount + 1};
+						} catch (e) {
+							consolelog("FAILED TO SET TV SHOWS REFERENCE VARIABLE");
+						}
+						fanart		= json.result.tvshows[i].fanart;
+						thumbnail	= json.result.tvshows[i].thumbnail;
+						major		= json.result.tvshows[i].title;
+						minor		= json.result.tvshows[i].year;
+						playcount	= (json.result.tvshows[i].watchedepisodes == json.result.tvshows[i].episode) ? 1 : 0;
+						//basetype	= "tvshows";
+						listtype	= "seasons";
+						listid		= tvshowid;
+						baseid		= null;
+						back		= {listtype: "tvshows"};
+						// no return button shown
+						queueItem({listtype: listtype, listid: listid, baseid: baseid});
+
+						// load all the alubms for this artist
+						//self.loadMediaList({type: load, id: id});
+					} catch (e) {
+						consolelog("Failed to load a tv show - " + e);
+					}
+				};
+
+				var seasons = function(i) {
+					try {
+						console.log(json.result);
+						// "season", "tvshowid", "showtitle", "year", "playcount", "episode", "thumbnail", "file", "art", "watchedepisodes"
+						// check to make sure there is at least one season available for tvshowid
+						if (json.result.seasons[i].hasOwnProperty("tvshowid")) {
+							var tvshowid = json.result.seasons[i].tvshowid;
+							var season = json.result.seasons[i].season;
+
+							consolelog("Queueing episodes in season(" + season + ") for tvshowid(" + tvshowid + ") to be loaded ...");
+							if ( typeof self.XBMC.queuedIDs["episodes"] != "object" ) self.XBMC.queuedIDs["episodes"] = [];
+							self.XBMC.queuedIDs["episodes"].push({"tvshowid": tvshowid, "season": season});
+							//console.log(self.XBMC.queuedIDs["episodes"]);
+
+							// set reference variables
+							consolelog("typeof self.XBMC.ref.tvshows[" + tvshowid + "] = " + typeof self.XBMC.ref.tvshows[tvshowid]);
+							consolelog("typeof self.XBMC.ref.tvshows[" + tvshowid + "][" + season + "] = " + typeof self.XBMC.ref.tvshows[tvshowid][season]);
+
+							if (typeof self.XBMC.ref.tvshows[tvshowid][season] == "undefined") self.XBMC.ref.tvshows[tvshowid][season] = {};
+							self.XBMC.ref.tvshows[tvshowid][season] = {"index": rowCount, "item": itemCount + 1};
+
+							consolelog("typeof self.XBMC.ref.tvshows[" + tvshowid + "][" + season + "] = " + typeof self.XBMC.ref.tvshows[tvshowid][season]);
+
+							consolelog("typeof self.XBMC.mediaList.tvshows[" + self.XBMC.ref.tvshows[tvshowid].index + "][\"seasons\"" + self.XBMC.ref.tvshows[tvshowid].item + "] = " + typeof self.XBMC.mediaList.tvshows[ self.XBMC.ref.tvshows[tvshowid].index ]["seasons" + self.XBMC.ref.tvshows[tvshowid].item]);
+							//if ( typeof self.XBMC.mediaList.tvshows[ self.XBMC.ref.tvshows[tvshowid].index ]["seasons" + self.XBMC.ref.tvshows[tvshowid].item] == "object" ) {
+								// add season info and tokens required to get the episode list...
+								fanart		= json.result.seasons[i].art.fanart;
+								thumbnail	= json.result.seasons[i].art.poster;
+								major		= json.result.seasons[i].title;
+								minor		= json.result.seasons[i].year;
+								playcount	= (json.result.seasons[i].watchedepisodes == json.result.seasons[i].episode) ? 1 : 0;
+								//basetype	= "tvshows"
+								listtype	= "episodes";
+								listid		= season;
+								baseid		= tvshowid;
+								back		= {listtype: "seasons", listid: tvshowid};
+
+								// load all the episodes in the selected season for this tv show
+								//self.loadMediaList({type: load, id: id, baseid: baseid});
+								queueItem({listtype: listtype, listid: listid, baseid: baseid});
+							//}
+						} else consolelog("could not find tvshowid in json response... discarding item from list");
+					} catch (e) {
+						consolelog("Failed to load a tv show season. The tvshowid(" + tvshowid + ") doesnt exist - " + e);
+					}
+				};
+
+				var episodes = function(i) {
+					try {
+						// "episode", "season", "tvshowid", "showtitle", "resume", "title", "year", "playcount", "thumbnail", "file", "art.posert|fanart", "watchedepisodes"
+						var tvshowid = json.result.episodes[i].tvshowid;
+						var season = json.result.episodes[i].season;
+
+						consolelog("self.XBMC.mediaLibrary[\"tvshows\"][" + self.XBMC.ref["tvshows"][tvshowid].index + "][\"seasons\"" + self.XBMC.ref["tvshows"][tvshowid].item + "][" + self.XBMC.ref["tvshows"][tvshowid][season].index + "][\"episodes\"" + self.XBMC.ref["tvshows"][tvshowid][season].item + "]");
+						//if ( typeof self.XBMC.mediaLibrary["tvshows"][self.XBMC.ref["tvshows"][tvshowid].index]["seasons" + self.XBMC.ref["tvshows"][tvshowid].item][self.XBMC.ref["tvshows"][tvshowid][season].index]["episodes" + self.XBMC.ref["tvshows"][tvshowid][season].item] == "object") {
+							// add episode info...
+							file		= json.result.episodes[i].file;
+							fanart	 	= json.result.episodes[i].art.fanart;
+							resume		= json.result.episodes[i].resume;
+							thumbnail	= json.result.episodes[i].art.poster;
+							major		= json.result.episodes[i].title;
+							minor		= "S" + json.result.episodes[i].season + ":E" + json.result.episodes[i].episode;
+							playcount	= (json.result.episodes[i].watchedepisodes == json.result.episodes[i].playcount) ? 1 : 0;
+							//basetype	= "tvshows";
+							//listtype	= null; // not req'd
+							//id		= season; // not req'd
+							//baseid	= tvshowid; // not req'd?
+							//back		= {listtype: "seasons", id: season, baseid: tvshows}; // not req'd
+						//}
+					} catch (e) {
+						consolelog("Failed to load a tv show episode. The episode in season(" + season + ") of tvshowid(" + tvshowid + ") don't exist? - " + e);
+					}
+				};
+
+				var artists = function(i) {
+					try {
+						console.log(json.result.artists[i]);
+						// "artist", "artistid", "thumbnail", "fanart", "formed", "label"
+						artistid = json.result.artists[i].artistid;
+						consolelog("Queueing albums for artist(" + artistid + ") to be loaded ...");
+						if ( typeof self.XBMC.queuedIDs["albums"] != "object" ) self.XBMC.queuedIDs["albums"] = [];
+						self.XBMC.queuedIDs["albums"].push({"artistid": artistid});
+						//console.log(self.XBMC.queuedIDs["albums"]);
+
+						// set reference variables
+						//if (typeof self.XBMC.ref["artists"][artistid] == "undefined") self.XBMC.ref["artists"][artistid] = [];
+						//self.XBMC.ref["artists"][artistid] = {"index": rowCount, "item": itemCount + 1};
+
+						fanart		= json.result.artists[i].fanart;
+						thumbnail	= json.result.artists[i].thumbnail;
+						major		= json.result.artists[i].artist;
+						minor		= json.result.artists[i].formed;
+						//type		= "artists";
+						listtype	= "albums";
+						listid		= artistid;
+						baseid		= null;
+						back		= {listtype : "artists"};
+
+						// load all the albums for this artist
+						queueItem({listtype: listtype, listid: listid, baseid: baseid});
 
 					} catch (e) {
-						consolelog("buildMediaList(): error seting GT - tokens = ---v", tokens, e);
-					} finally {
-
-						// delete the media type from the queue of lists to be loaded
-						//delete libraryRequestQueue[type]["queue" + baseid + listid];
-
-						// clean up variables
-						//list = []; // not needed
-
+						consolelog("Failed to load an artist - " + e);
 					}
+				};
+
+				var albums = function(i) {
+					try {
+						// "artistid", "albumartistid", "albumid", "thumbnail", "title", "fanart", "year", "playcount"
+						var artistid = json.result.albums[i].artistid;
+						var albumid = json.result.albums[i].albumid;
+
+						consolelog("Queueing songs on albumid(" + albumid + ") for artistid(" + artistid + ") to be loaded ...");
+						if ( typeof self.XBMC.queuedIDs["songs"] != "object" ) self.XBMC.queuedIDs["songs"] = [];
+						self.XBMC.queuedIDs["songs"].push({"artistid": artistid, "albumid": albumid});
+						//console.log(self.XBMC.queuedIDs["songs"]);
+
+						// set reference variables
+						//if (typeof self.XBMC.ref["artists"][artistid][albumid] == "undefined") self.XBMC.ref["artists"][artistid] = [];
+						//self.XBMC.ref["artists"][artistid][albumid] = {"index": rowCount, "item": itemCount + 1};
+
+						// WHAT'S THIS IF DOING? - checking that the parent list has been loaded? who gives a fuck??!!
+						//if ( typeof self.XBMC.mediaLibrary["artists"][ self.XBMC.ref.artists[artistid].index ]["albums" + self.XBMC.ref.artists[artistid].item] == "object" ) {
+							//var leveloneid	= artistid;
+							fanart		= json.result.albums[i].fanart;
+							thumbnail	= json.result.albums[i].thumbnail;
+							major		= json.result.albums[i].title;
+							minor		= json.result.albums[i].year;
+							playcount	= json.result.albums[i].playcount;
+							//type		= "artists";
+							listtype	= "songs";
+							listid		= albumid;
+							baseid		= artistid;
+							back		= {listtype: "albums", id: artistid}; // info requred to load the artists list
+
+							queueItem({listtype: listtype, listid: listid, baseid: baseid});
+						//}
+					} catch (e) {
+						consolelog("Failed to load an album. The artistid(" + artistid + ") doesnt exist? - " + e);
+					}
+				};
+
+				var songs = function(i) {
+					try {
+						// "thumbnail", "fanart", "title", "track", "file", "albumartistid", "albumid", "songid", "playcount", "album"
+						var artistid = json.result.songs[i].artistid;
+						var albumid = json.result.songs[i].albumid;
+
+						consolelog("self.XBMC.mediaLibrary[\"artists\"][" + self.XBMC.ref.artists[artistid].index + "][\"albums\"" + self.XBMC.ref.artists[artistid].item + "][" + self.XBMC.ref.artists[artistid][albumid].index + "][\"songs\"" + self.XBMC.ref.artists[artistid][albumid].item + "]");
+						//if ( typeof self.XBMC.mediaLibrary["artists"][self.XBMC.ref.artists[artistid].index]["albums" + self.XBMC.ref.artists[artistid].item][self.XBMC.ref.artists[artistid][albumid].index]["songs" + self.XBMC.ref.artists[artistid][albumid].item] == "object") {
+							// add song info...
+
+							//var leveloneid = artistid;
+							//var leveltwoid = albumid;
+							fanart		= json.result.songs[i].fanart;
+							file		= file;
+							thumbnail	= json.result.songs[i].thumbnail;
+							major		= json.result.songs[i].track + ". " +json.result.songs[i].title;
+							minor		= json.result.songs[i].album;
+							playcount	= json.result.songs[i].playcount;
+							//basetype		= "artists";
+							//listtype		= null;		// not req'd
+							//id		= albumid;	// not req'd
+							//baseid	= artistid;	// not req'd
+							//back		= {listtype: "albums", id: artistid}; // not req'd
+
+							//queueItem();
+						//}
+					} catch (e) {
+						consolelog("Failed to load a tv show episode list. The songs on season(" + season + ") of tvshowid(" + tvshowid + ") don't exist - " + e);
+					}
+
+					// load the sub-list for this item
+
+					// THIS IS WHERE THE SEASON/EPISODE LIST LOADING STOP!!! DICK!
+
+					//consolelog("buildMediaList() is calling loadMediaList(load: " + load + ", id: " + id + ", =
+
+					//self.loadMediaList({type: (load) ? load : null, id: (id) ? id : null, baseid: (baseid) ? baseid : null});
+
+				};
+
+
+				addThumbnail = function(fake) {
+					// fake == false => add a empty/hidden thumbnail
+					var tokens = {};
+					if (!fake) {
+						if ( fanart ) {
+							tokens["[fanart]"] = cleanImage(fanart);
+							// CF.loadAsset(tokens["[fanart]"], CF.UTF8); // reeeeeeally doesnt like this :-!
+						}
+						if ( file )		tokens["[file]"]	= decode_utf8(file);
+						if ( resume )	tokens["[resume]"]	= resume;
+						//if ( basetype )		tokens["[basetype]"]	= basetype;						// fundamental type of list (movies, tvshows, artists, playlists) only set from sidemenu
+						//if ( listtype )	tokens["[listtype]"]	= listtype;						// media type to load for next list on thumbnail click
+						tokens["[listtype]"]	= type;						// media type to load for next list on thumbnail click
+						if ( listid )		tokens["[listid]"]		= listid;						// used to locate first+seconds level objects in mediaLibrary[]
+						if ( baseid )	tokens["[baseid]"]	= baseid;					// used to locate first level object in mediaLibrary[]
+						if ( back )		tokens["[return]"]	= JSON.stringify( back ); 	// info for back button on next list
+						//tokens["[" + ((base) ? "base_" : "") + "join]"] = itemCount+1;
+						//tokens["[" + ((base) ? "base_" : "") + "index]"] = rowCount;
+						//if (base) tokens["[base_join]"] = itemCount+1;
+						//if (base) tokens["[base_index]"] = rowCount;
+					}
+
+					rowItems["d"+(self.joins.firstWatched+itemCount)]	= (!fake) ? ((playcount > 0) ? 1 : 0) : "";
+					rowItems["s"+(self.joins.firstTitle+itemCount)]		= (!fake) ? decode_utf8(major) : "";
+					rowItems["s"+(self.joins.firstYear+itemCount)]		= (!fake) ? (decode_utf8((typeof minor == "number") ? minor.toString() : minor)) : "";
+					rowItems["s"+(self.joins.firstThumbnail+itemCount)]	= (!fake) ? cleanImage(thumbnail) : "";
+					rowItems["d"+(self.joins.firstThumbnail+itemCount)]	= { // button for selecting item
+						"value": 0,
+						"tokens": tokens
+					};
+
+					itemCount++;
+				};
+
+				var padRow = function() {
+					// only pad if the row isnt empty
+					if (itemCount < maxPerRow && rowItems.length > 0 ) {
+						// hide/clear remaining items in row
+						while (itemCount < maxPerRow) addThumbnail(false); // empty thumbnail
+
+						// add last row to array
+						list.push(rowItems);
+					}
+				};
+
+
+				// create the cases object to call the req'd functions
+				var cases = {
+					movies: 	movies,
+					tvshows:	tvshows,
+					seasons:	seasons,
+					episodes: 	episodes,
+					artists:	artists,
+					albums:		albums,
+					songs:		songs
+				};
+
+				// base types lookup array
+				var basetype = {
+					movies:		"movies",
+					tvshows:	"tvshows",
+					seasons:	"tvshows",
+					episodes:	"tvshows",
+					artists:	"artists",
+					albums:		"artists",
+					songs:		"artists"
+				};
+
+				//consolelog("cases = --v");
+				//console.log(cases);
+
+				try {
+					// create the list by looping thru the json response object
+					for (var i = 0; i < json.result.limits.total; i++) {
+						if (itemCount == maxPerRow) {
+							itemCount = 0;
+							rowCount++;
+
+							list.push(rowItems);
+
+							rowItems = {}; // reset horizontal row list
+						}
+
+						if (cases[type]){
+							cases[type](i);		// build the thumbnail
+							addThumbnail();		// add the thumbnail to the row
+
+						}
+					}
+				} catch (e) {
+					consolelog("buildMediaList(): Exception caught in json.result for loop... - " + e);
+
 				}
 
-			});
+				padRow(); // clean up last row (hide empty thumbnails)
 
-		}
-		consolelog("removing query from library request queue ---v", libraryRequestQueue.shift());
-		// OR delete libraryRequestQueue[libraryReqeustQueue.indexOf(JSON.stringify())];
+				consolelog("Finished creating list for " + type);
+				//self.XBMC.mediaLibrary[type] = list; // set here or in GT join change event??  join change event
+				//consolelog("WHAT THE mediaLibrary[currentList] SHOULD LOOK LIKE!! --v");
 
-		// delete the type from the library request queue
-		//consolelog("buildMediaList(): Deleting libraryRequestQueue[" + type + "] - check doesnt throw exception if not defined, ie: type = false");
-		//delete libraryRequestQueue[type]["queue" + baseid + listid];
-		try {
-			// THIS MAY GET MOVE TO loadMediaList() ---v
-			Object.keys(libraryRequestQueue).length || (libraryRequestQueue = []);
-			consolelog("buildMediaList() - TESTING: Object.keys(libraryRequestQueue).length || libraryRequestQueue = {}", libraryRequestQueue);
+				consolelog("list object = --v", list);
+
+				// !! DONT ADD TO LIST HERE - THIS JUST BUILDS IT AND ADD'S TO GT... INTERVAL WATCHING mediaLibrary[type] ADD'S THE LIST !!
+				//CF.listRemove("l"+self.joins.mediaList); // double check list is empty to avoid duplicating
+				//CF.listAdd("l"+self.joins.mediaList, list); //add array to iviewer liste=
+
+				// NEED TO HAVE LIST TITLE SET BEFORE HERE
 
 
-			consolelog("buildMediaList() is requesting to load next media list in queue");
-			self.loadMediaList(); // cycles through libraryRequestQueue until empty
+				// set mediaList global token [type]
+				CF.getJoin(CF.GlobalTokensJoin, function(j, v, t) {
 
-			//consolelog("No more media lists need loading... deleting libraryRequestQueue...")
+					var l = {};
+					try {
+						l = JSON.parse(t["[" + basetype[type] + "]"]);
+					} catch(e) {
+						consolelog("loadMediaList(): Failed to get " + basetype[type] + " from GT join. Possibly not created yet...", "GT [" + basetype[type] + "] = '" + t["[" + basetype[type] + "]"] + "'", new Error("The GlobalToken [" + basetype[type] + "] is empty..."));
+					} finally {
+
+						// IS THERE A BETTER WAY TO DO THIS??
+
+						switch(type) {
+						case "seasons":
+						case "albums":
+							// check declared as object
+							l["[" + basetype[type] + "]"] = l[ "[" + basetype[type] + "]"] || {};
+							l["[" + basetype[type] + "]"]["[" + type + "]"] = l[ "[" + basetype[type] + "]"]["[" + type + "]"] || {};
+							l["[" + basetype[type] + "]"]["[" + type + "]"][baseid] = l[ "[" + basetype[type] + "]"]["[" + type + "]"][baseid] || {};
+
+							//l[ "base type" ][ "[seasons/albums]" ][ "tvshowid/artistid" ]
+							l["[" + basetype[type] + "]"]["[" + type + "]"][listid]["list"] = list;
+							break;
+						case "episodes":
+						case "songs":
+							// check declared as object
+							l["[" + basetype[type] + "]"] = l[ "[" + basetype[type] + "]"] || {};
+							l["[" + basetype[type] + "]"]["[" + type + "]"] = l[ "[" + basetype[type] + "]"]["[" + type + "]"] || {};
+							l["[" + basetype[type] + "]"]["[" + type + "]"][baseid] = l[ "[" + basetype[type] + "]"]["[" + type + "]"][baseid] || {};
+							l["[" + basetype[type] + "]"]["[" + type + "]"][baseid][listid] = l[ "[" + basetype[type][listid] + "]"]["[" + type + "]"][baseid][listid] || {};
+
+							//l[ "base type" ][ "[episodes/songs]" ][ "tvshowid/artistid" ][ "season/albumid" ]
+							l["[" + basetype[type] + "]"]["[" + type + "]"][baseid][listid]["list"] = list;
+							break;
+						case "movies":
+						case "tvshows":
+						case "artists":
+							l["[" + basetype[type] + "]"] = l[ "[" + basetype[type] + "]"] || {};
+							consolelog("setting up [" + basetype[type] + "] token to be added to GT...");
+							l["[" + basetype[type] + "]"]["list"] = list;
+							consolelog("l == ---v", l);
+							// delete the media type from the queue of lists to be loaded
+							//if( delete libraryRequestQueue[type]["[list]"] ) {
+							//	if (!libraryRequestQueue[type]) delete libraryRequestQueue[type];
+							//}
+							consolelog("!libraryRequestQueue[type] == " + !libraryRequestQueue[type]);
+						};
+
+						try {
+							//gtok = {};
+							consolelog("adding new list to GlobalTokens [" + basetype[type] + "] = ---v", l);
+							// convert list from an object to a string for storage as a GlobalToken
+							l["[" + basetype[type] + "]"] = JSON.stringify(l["[" + basetype[type] + "]"]);
+
+							//consolelog("l[\"[\"" + basetype[type] + "\"]\"] = " + l["[" + basetype[type] + "]"]);
+							CF.setJoins([
+								// triggers join change event to update mediaLibrary[type]? hopefully AFTER the current list GT is changed... :-!
+								{ join: CF.GlobalTokensJoin, value: GlobalTokensCounter++, tokens: l }
+							]);
+
+						} catch (e) {
+							consolelog("buildMediaList(): error seting GT - tokens = ---v", tokens, e);
+						} finally {
+
+							// delete the media type from the queue of lists to be loaded
+							//delete libraryRequestQueue[type]["queue" + baseid + listid];
+
+							// clean up variables
+							//list = []; // not needed
+
+						}
+					}
+
+				});
+			} else consolelog("buildMediaList(): error in json response or list type not valid");
 		} catch (e) {
-			// does this ever get called??
-			consolelog("WOW!! Exception caught at the end of buildMediaList() whilst removing or deleting libraryRequestQueue after creating a " + type + " list. May need to move self.loadMediaList() to catch block..?");
+			consolelog("Blurrrrrr!!!");
+		} finally {
+			consolelog("removing query from library request queue ---v", libraryRequestQueue.shift());
+			self.listLoading = false;
+			consolelog("set self.listLoading = " + self.listLoading);
+
+			// OR delete libraryRequestQueue[libraryReqeustQueue.indexOf(JSON.stringify())];
+
+			// delete the type from the library request queue
+			//consolelog("buildMediaList(): Deleting libraryRequestQueue[" + type + "] - check doesnt throw exception if not defined, ie: type = false");
+			//delete libraryRequestQueue[type]["queue" + baseid + listid];
+			try {
+				// THIS MAY GET MOVE TO loadMediaList() ---v
+				Object.keys(libraryRequestQueue).length || (libraryRequestQueue = []);
+				consolelog("buildMediaList() - TESTING: Object.keys(libraryRequestQueue).length || libraryRequestQueue = {}", libraryRequestQueue);
+
+
+				consolelog("buildMediaList() is requesting to load next media list in queue");
+				self.loadMediaList(); // cycles through libraryRequestQueue until empty
+
+				//consolelog("No more media lists need loading... deleting libraryRequestQueue...")
+			} catch (e) {
+				// does this ever get called??
+				consolelog("WOW!! Exception caught at the end of buildMediaList() whilst removing or deleting libraryRequestQueue after creating a " + type + " list. May need to move self.loadMediaList() to catch block..?");
+			}
 		}
 	};
 
@@ -1086,8 +1098,7 @@ var XBMC_GUI = function() {
 					});
 					*/
 
-
-					CF.setJoin("d"+self.joins.media_return_button, (["movies", "tvshows", "artists"].indexOf(self.XBMC.currentList.listtype) == -1) ? 1 : 0);
+					//CF.setJoin("d"+self.joins.media_return_button, (["movies", "tvshows", "artists"].indexOf(self.XBMC.currentList.listtype) == -1) ? 1 : 0);
 				//});
 
 				break;
@@ -1097,14 +1108,14 @@ var XBMC_GUI = function() {
 			case "s"+self.joins.mediaList:
 				// save currentList
 				consolelog("Media list title JoinChangeEvent is saving the [currentList] Global Token = " + JSON.stringify(self.XBMC.currentList));
-
+				// set [currentList] token correcting order of properties
 				CF.setJoins([
 					{join: CF.GlobalTokensJoin,
 					value: GlobalTokensCounter++,
-					tokens: { "[currentList]": JSON.stringify({listtype: tokens["listtype"], basetype: tokens["basetype"], listid: tokens["listid"], baseid: tokens["baseid"]}) }},
+					tokens: { "[currentList]": JSON.stringify({listtype: tokens["[listtype]"], basetype: tokens["[basetype]"], listid: tokens["[listid]"], baseid: tokens["[baseid]"]}) }},
 				]);
-				consolelog("Starting self.loadMediaList(" + tokens["listtype"] + ") from the media list title JoinChangeEvent");
-				self.loadMediaList(tokens["listtype"]);
+				consolelog("Starting self.loadMediaList(params) from the media list title JoinChangeEvent using params ---v", tokens);
+				self.loadMediaList(tokens);
 				break;
 			case "l"+self.joins.mediaList:
 				// media list changed
@@ -1210,17 +1221,35 @@ var XBMC_GUI = function() {
 		}
 	}
 
-	function setMediaListTitle(m) {
-
-		if (!m) m = self.XBMC.currentList;
-		consolelog("s+mediaList JoinChangeEvent: params = ---v", m);
-		title = m["listtype"][0].toUpperCase() + m["listtype"].substr(1);
-		consolelog("Setting the media list title serial join to \"" + title + "\" using setMediaListTitle(m)");
+	function setMediaListTitle(params) {
+		if (!params) params = self.XBMC.currentList;
+		consolelog("s+mediaList JoinChangeEvent: params = ---v", params);
+		params = tokenize(params, true);
+		title = ( params["[listtype]"].toLowerCase() == "tvshows" ) ? "TV Shows" : params["[listtype]"][0].toUpperCase() + params["[listtype]"].substr(1); // proper case
+		consolelog("Setting the media list title serial join to \"" + title + "\" using setMediaListTitle(params), called from showMediaList()");
 		CF.setJoins([
-			{join: "s"+self.joins.mediaList, value: title, tokens: m }
+			{join: "s"+self.joins.mediaList, value: title, tokens: params },
+			{join: "d"+self.joins.media_return_button, value: (["movies", "tvshows", "artists"].indexOf(params["[listtype]"]) == -1) ? 1 : 0 }
 		]);
 	}
 
+	function tokenize(obj, force) {
+		var newprop = "";
+		try {
+			for (prop in obj) {
+				if (obj.hasOwnProperty(prop) && typeof prop == "string") {
+					if ( prop[0] == "[" && prop.slice(-1) == "]" && force !== true ) newprop = prop.slice(1, -1); // skip if forcing add of square brackets
+					else if ( prop[0] != "[" && prop.slice(-1) != "]" && force !== false ) newprop = "[" + prop + "]"; // skid if forcing remove of square brackets
+
+					if (newprop) ( obj[newprop] = obj[prop], delete obj[prop] );
+				}
+			}
+		} catch (e) {
+			consolelog("Parameter passed to tokenize is not an object", e);
+		} finally {
+			return obj;
+		}
+	}
 
 	// function for decoding string with accents
 	function decode_utf8(string) {
