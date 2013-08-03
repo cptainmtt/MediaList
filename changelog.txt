@@ -1,0 +1,8 @@
+MediaList GUI v0.1
+==================
+movies and tvshows list are loading and loading
+the list array is being built correctly
+
+
+MediaList GUI v0.2
+==================

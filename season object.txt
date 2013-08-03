@@ -1,0 +1,85 @@
+TVSHOW X, SEASONS
+=================
+passed variables oclick	=> listIndex (tvshow row number, starting at 0)
+			=> join = "d" + n
+			\> save self.XBMC.parentIndex = listIndex
+			\> save self.XBMC.parentItem = join.substr(-1)
+
+existing reference	-> ref.tvshows[tvshowid].index
+			-> ref.tvshows[tvshowid].item
+create reference array	-> ref.tvshows[tvshowid][season_number] = {"index": (rowCount - 1), "item": itemCount};
+
+			-> therefor save seasons array to _
+				-> tvshows[ref.tvshow[tvshowid].index]["seasons" + ref.tvshow[tvshowid].item]
+
+
+n = Math.Ceil(join? / itemsPerRow) // eg: n = 1 where 1 <= season_number <=8
+tvshows[self.XBMC.parentIndex]["s"  + self.XBMC.parentItem] = thumbnail
+tvshows[self.XBMC.parentIndex]["d"  + self.XBMC.parentItem] = tokens
+tvshows[self.XBMC.parentIndex]["s2" + self.XBMC.parentItem] = showtitle
+tvshows[self.XBMC.parentIndex]["s4" + self.XBMC.parentItem] = season_number
+tvshows[self.XBMC.parentIndex]["s6" + self.XBMC.parentItem] = fanart
+tvshows[self.XBMC.parentIndex]["episode" + self.XBMC.parentItem] = episodes
+
+[0]{
+	s1:		season1_thumb,
+	d1:		{
+			tokens: {
+				"[number]":	season1_season_number,
+				"[tvshowid]":	season1_tvshowid,
+				"[fanart]":	season1_fanart,
+			},
+	},
+	s21:		season1_showtitle,
+	s41:		season1_season_number,
+	s61:		season1_fanart,
+	episodes1:	{
+			...
+	},
+
+	s8:		season8_thumb,
+	d8:		{
+			tokens: {
+				"[number]":	season8_season_number,
+				"[tvshowid]":	season8_tvshowid,
+				"[fanart]":	season8_fanart,
+			},
+	}.
+	s28:		season8_showtitle,
+	s48:		season8_season_number,
+	s68:		season8_fanart,
+	episodes8:	{
+			...
+	},
+},
+[1]{
+	s1:		season9_thumb,
+	d1:		{
+			tokens: {
+				"[number]":	season9_season_number,
+				"[tvshowid]":	season9_tvshowid,
+				"[fanart]":	season9_fanart,
+			},
+	},
+	s21:		season9_showtitle,
+	s41:		season9_season_number,
+	s61:		season9_fanart,
+	episodes1:	{
+			...
+	},
+
+	s8:		season16_thumb,
+	d8:		{
+			tokens: {
+				"[number]":	season16_season_number,
+				"[tvshowid]":	season16_tvshowid,
+				"[fanart]":	season16_fanart,
+			},
+	}.
+	s28:		season16_showtitle,
+	s48:		season16_season_number,
+	s68:		season16_fanart,
+	episodes8:	{
+			...
+	},
+},

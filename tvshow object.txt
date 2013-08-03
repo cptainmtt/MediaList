@@ -1,0 +1,62 @@
+TVSHOWS
+=======
+create reference array	-> ref.tvshows[tvshowid] = {"index": (rowCount - 1), "item": itemCount};
+
+[0]{
+		s1:		tvshow1_thumb,
+		d1:		{
+				tokens: {
+					"[id]":		tvshow1_id,
+					"[fanart]":	tvshow1_fanart,
+				},
+		},
+		s21:		tvshow1_title,
+		s41:		tvshow1_year,
+		d61:		tvshow1_watched,
+		seasons1:	{
+				...
+		},
+		
+		s8:		tvshow8_thumb,
+		d8:		{
+				tokens: {
+					"[id]":		tvshow8_id,
+					"[fanart]":	tvshow8_fanart,
+				},
+		},
+		s28:		tvshow8_title,
+		s48:		tvshow8_year,
+		d68:		tvshow8_watched,
+		seasons8:	{
+				...
+		},
+},
+[1]{
+		s1:		tvshow9_thumb,
+		d1:		{
+				tokens: {
+					"[id]":		tvshow9_id,
+					"[fanart]":	tvshow9_fanart,
+				},
+		},
+		s21:		tvshow9_title,
+		s41:		tvshow9_year,
+		d61:		tvshow9_watched,
+		seasons1:	{
+				...
+		},
+		
+		s8:		tvshow16_thumb,
+		d8:		{
+				tokens: {
+					"[id]":		tvshow16_id,
+					"[fanart]":	tvshow16_fanart,
+				},
+		},
+		s28:		tvshow16_title,
+		s48:		tvshow16_year,
+		d68:		tvshow16_watched,
+		seasons8:	{
+				...
+		},
+},

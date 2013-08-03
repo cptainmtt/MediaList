@@ -1,0 +1,105 @@
+TVSHOW X, SEASON #, EPISODES
+============================
+save variable = self.XBMC.parentIndex
+passed variables oclick	=> listIndex (season row number, starting at 0)
+			=> join = "d" + n
+			\> save self.XBMC.childIndex = listIndex
+			\> save self.XBMC.childItem = join.substr(-1)
+			
+existing reference	-> ref.tvshows[tvshowid].index
+			-> ref.tvshows[tvshowid].item			
+			-> ref.tvshows[tvshowid][season_number].index
+			-> ref.tvshows[tvshowid][season_number].item
+			
+			-> therefor save episodes array to _
+				-> tvshows[ref.tvshows[tvshowid].index]["seasons" + ref.tvshow[tvshowid].item][ref.tvshow[tvshowid][season_number].index]["episodes" + ref.tvshow[tvshowid][season_number].item]
+
+			
+n = Math.Ceil(season_number / itemsPerRow) - 1;  // eg: n = 2 where 9 <= season_number <= 16
+tvshows[self.XBMC.parentIndex]["episode" + self.XBMC.parentItem][self.XBMC.childIndex]["s" + self.XBMC.childItem] = thumbnail
+tvshows[self.XBMC.parentIndex]["episode" + self.XBMC.parentItem][self.XBMC.childIndex]["d" + self.XBMC.childItem] = tokens
+tvshows[self.XBMC.parentIndex]["episode" + self.XBMC.parentItem][self.XBMC.childIndex]["s2" + self.XBMC.childItem] = showtitle
+tvshows[self.XBMC.parentIndex]["episode" + self.XBMC.parentItem][self.XBMC.childIndex]["s4" + self.XBMC.childItem] = season_number
+tvshows[self.XBMC.parentIndex]["episode" + self.XBMC.parentItem][self.XBMC.childIndex]["s6" + self.XBMC.childItem] = fanart
+
+[0]{
+	s1:	episode1_thumbnail
+	d1:	{
+		tokens:	{
+			"[file]":	episode1_file,
+			"[resume]":	episode1_resume,
+			"[id]":		episode1_uniqueid,
+			"[season]":	episode1_season,
+			"[tvshowid]":	episode1_tvshowid,
+	},
+	s21:	episode1_title,
+	s41:	episode1_season_number.episode_number
+	s61:	episode1_watched,
+
+	s8:	episode8_thumbnail
+	d8:	{
+		tokens:	{
+			"[file]":	episode8_file,
+			"[resume]":	episode8_resume,
+			"[id]":		episode8_uniqueid,
+			"[season]":	episode8_season,
+			"[tvshowid]":	episode8_tvshowid,
+	},
+	s28:	episode8_title,
+	s48:	episode8_season_number.episode_number
+	s68:	episode8_watched,
+},
+[1]{
+	s1:	episode9_thumbnail
+	d1:	{
+		tokens:	{
+			"[file]":	episode9_file,
+			"[resume]":	episode9_resume,
+			"[id]":		episode9_uniqueid,
+			"[season]":	episode9_season,
+			"[tvshowid]":	episode9_tvshowid,
+	},
+	s21:	episode9_title,
+	s41:	episode9_season_number.episode_number
+	s61:	episode9_watched,
+
+	s8:	episode16_thumbnail
+	d8:	{
+		tokens:	{
+			"[file]":	episode16_file,
+			"[resume]":	episode16_resume,
+			"[id]":		episode16_uniqueid,
+			"[season]":	episode16_season,
+			"[tvshowid]":	episode16_tvshowid,
+	},
+	s28:	episode16_title,
+	s48:	episode16_season_number.episode_number
+	s68:	episode16_watched,
+},
+{
+	s1:	episode17_thumbnail
+	d1:	{
+		tokens:	{
+			"[file]":	episode17_file,
+			"[resume]":	episode17_resume,
+			"[id]":		episode17_uniqueid,
+			"[season]":	episode17_season,
+			"[tvshowid]":	episode17_tvshowid,
+	},
+	s21:	episode17_title,
+	s41:	episode17_season_number.episode_number
+	s61:	episode17_watched,
+
+	s8:	episode24_thumbnail
+	d8:	{
+		tokens:	{
+			"[file]":	episode24_file,
+			"[resume]":	episode24_resume,
+			"[id]":		episode24_uniqueid,
+			"[season]":	episode24_season,
+			"[tvshowid]":	episode24_tvshowid,
+	},
+	s28:	episode24_title,
+	s48:	episode24_season_number.episode_number
+	s68:	episode24_watched,
+}

@@ -1,0 +1,132 @@
+var tvshows = [];
+
+tvshow.push({
+		s1:		tvshow1_thumb,
+		d1:		{
+				tokens: {
+					"[id]":		tvshow1_id,
+					"[fanart]":	tvshow1_fanart,
+				},
+		},
+		s21:		tvshow1_title,
+		s41:		tvshow1_year,
+		d61:		tvshow1_watched,
+		seasons1:	{
+					s1:		season1_thumb,
+					d1:		{
+							tokens: {
+								"[number]":	season1_season_number,
+								"[tvshowid]":	season1_tvshowid,
+								"[fanart]":	season1_fanart,
+							},
+				 	},
+					s21:		season1_showtitle,
+					s41:		season1_season_number,
+					s61:		season1_fanart,
+					episodes1:	{
+							s1:	episode1_thumbnail
+							d1:	{
+								tokens:	{
+									"[file]":	episode1_file,
+									"[resume]":	episode1_resume,
+									"[id]":		episode1_id,
+									"[season]":	episode1_season,
+									"[tvshowid]":	episode1_tvshowid,
+							},
+							s21:	episode1_title,
+							s41:	episode1_season_number.episode_number
+							s61:	episode1_watched,
+							
+							s8:	episode8_thumbnail
+							d8:	{
+								tokens:	{
+									"[file]":	episode8_file,
+									"[resume]":	episode8_resume,
+									"[id]":		episode8_id,
+									"[season]":	episode8_season,
+									"[tvshowid]":	episode8_tvshowid,
+							},
+							s28:	episode8_title,
+							s48:	episode8_season_number.episode_number
+							s68:	episode8_watched,
+					},
+					
+					s8:		season8_thumb,
+					d8:		{
+							tokens: {
+								"[number]":	season8_season_number,
+								"[tvshowid]":	season8_tvshowid,
+								"[fanart]":	season8_fanart,
+							},
+					}.
+					s28:		season8_showtitle,
+					s48:		season8_season_number,
+					s68:		season8_fanart,
+					episodes8:	{
+							s1:	episode1_thumbnail
+							d1:	{
+								tokens:	{
+									"[file]":	episode1_file,
+									"[resume]":	episode1_resume,
+									"[id]":		episode1_id,
+									"[season]":	episode1_season,
+									"[tvshowid]":	episode1_tvshowid,
+							},
+							s21:	episode1_title,
+							s41:	episode1_season_number.episode_number
+							s61:	episode1_watched,
+					},
+										
+					
+					},
+		},
+		
+		s18: 		tvshow8_thumb,
+		d18: 		{
+						tokens: {
+							"[id]": tvshow8_id,
+							"[fanart]": tvshow8_fanart
+				}
+		},
+		s28:		tvshow8_title,
+		s48:		tvshow8_year,
+		d68:		tvshow8_watched,
+		seasons8:	{
+		
+		},
+	},
+	{
+		s1:		tvshow9_thumb,
+		d1:		{
+				tokens: {
+					"[id]": tvshow9_id,
+					"[fanart]": tvshow9_fanart
+				}
+		},
+		s21:		tvshow9_title,
+		s41:		tvshow9_year,
+		d61:		tvshow9_watched,
+		seasons1:	{
+		
+		},
+		
+		s18:		tvshow16_thumb,
+		d18:		{
+				tokens: {
+					"[id]": tvshow16_id,
+					"[fanart]": tvshow16_fanart
+				}
+		},
+		s28:		tvshow16_title,
+		s48:		tvshow16_year,
+		d68:		tvshow16_watched,	
+		seasons8:	{
+			
+		},
+	},
+];
+
+tvshows[id] = [
+		{
+			s1: season_thumbnail,
+			s21: season 
