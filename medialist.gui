@@ -56,15 +56,15 @@
       </btn>
       <subpage name="XBMC_Wall_List" x="0" y="150" j="1" transition1="fade" subtype1="None" time1="2" ease1="" transition2="fade" subtype2="None" time2="2" ease2="" clickthrough="0" topmost="0" v="0" l="0" />
       <subpage name="Diagnostics" x="0" y="150" j="1001" transition1="fade" subtype1="None" time1="2" ease1="" transition2="fade" subtype2="None" time2="2" ease2="" clickthrough="0" topmost="0" v="1" l="0" />
-      <btn j="0" x="362" y="25" w="300" h="75" t="btn_single" flip="None" sim="1" l="0" s="1" js="myXBMC.requestMedia(&quot;movies&quot;)">
+      <btn j="0" x="362" y="25" w="300" h="75" t="btn_single" flip="None" sim="1" l="0" s="1" js="myXBMC.showMediaList(&quot;movies&quot;)">
         <inactive s="0">Show Movies</inactive>
         <active s="0">Show Movies</active>
       </btn>
-      <btn j="0" x="682" y="25" w="300" h="75" t="btn_single" flip="None" sim="1" l="0" s="1" js="myXBMC.requestMedia(&quot;tvshows&quot;)">
+      <btn j="0" x="682" y="25" w="300" h="75" t="btn_single" flip="None" sim="1" l="0" s="1" js="myXBMC.showMediaList(&quot;tvshows&quot;)">
         <inactive s="0">Show TV Shows</inactive>
         <active s="0">Show TV Shows</active>
       </btn>
-      <btn j="0" x="1012" y="25" w="300" h="75" t="btn_single" flip="None" sim="1" l="0" s="1" js="myXBMC.requestMedia(&quot;artists&quot;)">
+      <btn j="0" x="1012" y="25" w="300" h="75" t="btn_single" flip="None" sim="1" l="0" s="1" js="myXBMC.showMediaList(&quot;artists&quot;)">
         <inactive s="0">Show Music</inactive>
         <active s="0">Show Music</active>
       </btn>

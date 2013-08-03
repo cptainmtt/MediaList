@@ -78,7 +78,7 @@ var XBMC_GUI = function() {
 					// arg = join
 					params.join = arg.splice(-1); // get the number of the join (1-itemsPerRow(8))
 					params.index = arg.slice(arg.indexOf(":")+1, arg.lastIndexOf(":"));
-					/consolelog("arg.slice(arg.indexOf(\":\"), arg.lastIndexOf(\":\")) = '" + arg.slice(arg.indexOf(":")+1, arg.lastIndexOf(":")) + "'");
+					consolelog("arg.slice(arg.indexOf(\":\"), arg.lastIndexOf(\":\")) = '" + arg.slice(arg.indexOf(":")+1, arg.lastIndexOf(":")) + "'");
 				// check if passed type string if the type hasnt already been set
 			} else if (!params.listtype) params.listtype = self.XBMC.checkMediaType(tokenize(arg, false), false); // don't return default type
 				//consolelog("string case: post check params.basetype = " + params.basetype);
@@ -394,7 +394,7 @@ var XBMC_GUI = function() {
 				var rowItems = {};
 				var maxPerRow = 8;
 				//var tokens = {};
-				var back = {}, listid = null, baseid = null, major, minor, thumbnail, fanart = null, playcount, file = null, resume, load = null; // declare, set scope and reset
+				var back = {}, listtype = null, listid = null, baseid = null, major, minor, thumbnail, fanart = null, playcount, file = null, resume, load = null; // declare, set scope and reset
 
 				var cases = {};
 
@@ -420,7 +420,6 @@ var XBMC_GUI = function() {
 						major		= json.result.movies[i].label;
 						minor		= json.result.movies[i].year;
 						playcount	= (json.result.movies[i].playcount > 0) ? 1 : 0;
-
 						// no retun button shown
 					} catch (e) {
 						consolelog("buildMediaList(): Exception caught creating a movie item");
@@ -454,7 +453,7 @@ var XBMC_GUI = function() {
 						listid		= tvshowid;
 						baseid		= null;
 						back		= {listtype: "tvshows"};
-						// no return button shown
+
 						queueItem({listtype: listtype, listid: listid, baseid: baseid});
 
 						// load all the alubms for this artist
@@ -655,14 +654,17 @@ var XBMC_GUI = function() {
 							tokens["[fanart]"] = cleanImage(fanart);
 							// CF.loadAsset(tokens["[fanart]"], CF.UTF8); // reeeeeeally doesnt like this :-!
 						}
-						if ( file )		tokens["[file]"]	= decode_utf8(file);
-						if ( resume )	tokens["[resume]"]	= resume;
+						if ( file )		tokens["[file]"]		= decode_utf8(file);
+						if ( resume )	tokens["[resume]"]		= resume;
 						//if ( basetype )		tokens["[basetype]"]	= basetype;						// fundamental type of list (movies, tvshows, artists, playlists) only set from sidemenu
-						//if ( listtype )	tokens["[listtype]"]	= listtype;						// media type to load for next list on thumbnail click
-						tokens["[listtype]"]	= type;						// media type to load for next list on thumbnail click
-						if ( listid )		tokens["[listid]"]		= listid;						// used to locate first+seconds level objects in mediaLibrary[]
-						if ( baseid )	tokens["[baseid]"]	= baseid;					// used to locate first level object in mediaLibrary[]
-						if ( back )		tokens["[return]"]	= JSON.stringify( back ); 	// info for back button on next list
+						if ( listtype )	tokens["[listtype]"]	= listtype;						// media type to load for next list on thumbnail click
+						//tokens["[listtype]"]	= type;						// media type to load for next list on thumbnail click
+						if ( listid )	tokens["[listid]"]		= listid;						// used to locate first+seconds level objects in mediaLibrary[]
+						if ( baseid )	tokens["[baseid]"]		= baseid;					// used to locate first level object in mediaLibrary[]
+						if ( back )		tokens["[return]"]		= JSON.stringify( back ); 	// info for back button on next list
+						tokens["[join]"]						= itemCount;
+						tokens["[listIndex]"]					= rowCount;
+
 						//tokens["[" + ((base) ? "base_" : "") + "join]"] = itemCount+1;
 						//tokens["[" + ((base) ? "base_" : "") + "index]"] = rowCount;
 						//if (base) tokens["[base_join]"] = itemCount+1;
@@ -737,7 +739,7 @@ var XBMC_GUI = function() {
 						}
 					}
 				} catch (e) {
-					consolelog("buildMediaList(): Exception caught in json.result for loop... - " + e);
+					consolelog("buildMediaList(): Exception caught in json.result for loop... - ", e);
 
 				}
 
